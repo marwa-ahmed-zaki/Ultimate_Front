@@ -1,0 +1,118 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h4 class="font-weight-bold">Category Page</h4>
+
+        <!-- Category Input -->
+        <div class="form-group">
+            <label for="categoryName">Category Name:</label>
+            <input type="text" class="form-control" id="categoryName" placeholder="Enter category name">
+            <button class="btn btn-warning mt-2" onclick="saveCategory()">Save</button>
+        </div>
+
+        <!-- Category Table -->
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Category No.</th>
+                    <th>Category Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categoryTable">
+                <!-- Rows will be added here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        loadCategories();
+    });
+
+    function loadCategories() {
+        $.ajax({
+            url: 'Category/GetAll',
+            type: 'GET',
+            success: function (data) {
+                console.log(data)
+                $('#categoryTable').empty();
+                data.forEach(function (category, index) {
+                    $('#categoryTable').append(`
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${category.categoryName}</td>
+                            <td>
+                                <a href="#" onclick="updateCategory(${category.categoryId})">Update</a> |
+                                <a href="#" onclick="deleteCategory(${category.categoryId})">Delete</a>
+                            </td>
+                        </tr>
+            `);
+                });
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+    function saveCategory() {
+        const categoryName = $('#categoryName').val();
+        if (categoryName) {
+            $.ajax({
+                url: 'Category/AddCategory',
+                type: 'POST',
+                data: { name: categoryName },
+                success: function () {
+                    $('#categoryName').val('');
+                    loadCategories();
+                },
+                error: function (error) {
+                    console.log('Error:', error);
+                }
+            });
+        } else {
+            alert('Please enter a category name');
+        }
+    }
+
+    function updateCategory(id) {
+    }
+
+    function deleteCategory(id) {
+        $.ajax({
+            url: `/deleteCategory/${id}`, 
+            type: 'DELETE',
+            success: function () {
+                loadCategories();
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+</script>
